@@ -1,0 +1,68 @@
+// NEW VER "REWRITTEN" BY LOVEYLOVEYLOVEYDOVEYDOVEYDOVEY
+
+
+#include <SoftwareSerial.h>
+
+// Define the pins for GSM module communication
+#define GSM_TX_PIN 2
+#define GSM_RX_PIN 4
+
+// Create a SoftwareSerial object to communicate with the GSM module
+SoftwareSerial gsmSerial(GSM_TX_PIN, GSM_RX_PIN);
+
+// Function prototype for sending SMS
+void sendSMS(String phoneNumber, String message);
+
+void setup() {
+  // Start serial communication with the computer for debugging
+  Serial.begin(9600);
+  
+  // Start serial communication with the GSM module
+  gsmSerial.begin(9600);
+
+  // Ensure proper connection by giving some time
+  delay(2000);
+
+  // Send AT command to check if the module is responding
+  gsmSerial.println("AT");
+  delay(1000);
+
+  // Check the response from the module
+  if (gsmSerial.find("OK")) {
+    Serial.println("GSM module is ready!");
+  } else {
+    Serial.println("Error: GSM module not responding!");
+    while (true); // Halt the program if module is not responding
+  }
+}
+
+void loop() {
+  // Example: Send message periodically
+  sendSMS("+639612053063", "rooting for you guys!"); // Customize recipient and message as needed
+
+  // Wait for a specified time interval before sending another message
+  delay(60000); // 1 minute delay before sending the next message
+}
+
+void sendSMS(String phoneNumber, String message) {
+  // Set SMS format to text mode
+  gsmSerial.println("AT+CMGF=1");
+  delay(1000);
+
+  // Send the SMS message
+  gsmSerial.print("AT+CMGS=\"");
+  gsmSerial.print(phoneNumber);
+  gsmSerial.println("\"");
+  delay(1000);
+  gsmSerial.println(message);
+  delay(1000);
+  gsmSerial.println((char)26); // Send CTRL+Z to terminate the message
+  delay(1000);
+
+  // Check if the message was sent successfully
+  if (gsmSerial.find("OK")) {
+    Serial.println("Message sent successfully!");
+  } else {
+    Serial.println("Error: Failed to send message.");
+  }
+}
